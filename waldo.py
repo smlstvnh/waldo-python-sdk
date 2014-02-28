@@ -142,6 +142,16 @@ def get_dossier_list(ddi=None,host=None,offset=0,limit=25):
 
 	if reply.status == 200 or reply.status == 206:
 		result['data'] = __digest_json(reply.read())
+
+		if reply.status == 206:
+			content_range = headers['content-range'].split(' ')[1].split('/')
+			start, end = content_range[0].split('-')
+			max = content_range[1]
+
+			result['position'] = {'position': (int(start), int(end)), 'list-size': int(max)}
+		else:
+			result['position'] = {'position': (offset,offset + len(result['data'])), 'list-size': len(result['data'])}
+
 		return ("SUCCESS", result)
 	else:
 		if DEBUG:
