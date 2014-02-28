@@ -81,12 +81,41 @@ def get_dossier(dossier_id=None):
 			print "\tNetwork Location: " + data['netloc']
 			print "\tResolved IP Address: " + data['resolved_ip_address']
 			print "\tRegion: " + data['topology']['region']
+			print "\tSummary Page: https://" + waldo.waldoserver + "/gui#/" + data['tenant_id'] + "/dossiers/" + data['netloc'] + "/" + dossier_id + "/summary"
 	else:
 		print "Invalid response, received " + str(result["status"][0]) + ": " + str(result["status"][1])
 
 
 def find_dossier_by_DDI():
 	print "Currently not implemented."
+
+	print "---------------------------------"
+	print "Get Dossier List"
+	print "---------------------------------"
+	print
+
+	valid_input = False
+
+	while not valid_input:
+		ddi = raw_input("Please enter DDI: ")
+
+		ddi = ddi.strip(' ')
+
+		if len(ddi) > 0 and ddi.isdigit():
+			ddi = int(ddi)
+			valid_input = True
+		elif len(ddi) == 0:
+			print "No DDI entered, cancelling."
+			return
+		else:
+			print "Invalid DDI Input."
+
+	limit = 5
+	offset = 0
+
+	while True:
+		pass
+
 
 def find_dossier_by_DDI_HOST():
 	print "Currently not implemented."
