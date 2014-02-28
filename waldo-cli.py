@@ -86,11 +86,85 @@ def get_dossier(dossier_id=None):
 		print "Invalid response, received " + str(result["status"][0]) + ": " + str(result["status"][1])
 
 
+def list_handler(ddi=None,host=None):
+	offset = 0
+	limit = 5
+	listsize = 0
+
+	while True:
+		print "---------------------------------"
+
+		status, results = waldo.get_dossier_list(ddi,host,offset,limit)
+
+		if status == "SUCCESS":
+			listsize = results['position']['list-size']
+
+			data = results['data']
+
+			if not len(data) > 0:
+				print "No results found!"
+				return
+
+			for item in data:
+				print str(data.keys().index(item)) + " *** Dossier: " + data[item]['id'] + " ***"
+				print "\tDiscovery Status: " + data[item]['discovery_status']
+				print "\tTime: " + data[item]['time'].isoformat()
+				print "\tTenant ID (DDI): " + data[item]['tenant_id']
+				print "\tNetwork Location: " + data[item]['netloc']
+
+			print "---------------------------------"
+			print "Showing " + str(offset) + " through " + str(offset + len(data)) + " of " + str(listsize)
+			print "Page (" + str((offset/limit)+1) + "/" + str(listsize/limit) + ")"
+
+			print "Select a dossier to retrieve, or one of the following options: "
+
+			optionstr = ""
+
+			if offset > 0:
+				optionstr += "(p) Previous Page "
+			if offset + limit < listsize:
+				optionstr += "(n) Next Page "
+
+			optionstr += '(x) Exit'
+
+			print optionstr
+
+			valid_input = False
+
+			while not valid_input:
+				choice = raw_input("> ")
+
+				if len(choice) > 0:
+					choice = choice[0].lower()
+
+					if choice.isdigit():
+						choice = int(choice)
+						if choice >= 0 and choice < len(data):
+							get_dossier(data[data.keys()[choice]]['id'])
+						else:
+							print "Invalid Selection."
+					elif choice == 'p' and offset > 0:
+						offset = offset - limit
+						if offset < 0:
+							offset = 0
+						valid_input = True
+					elif choice == 'n' and offset+limit < listsize:
+						offset += limit
+						valid_input = True
+					elif choice == 'x':
+						return
+					else:
+						print "Invalid Selection."
+
+		else:
+			print "Invalid response, received " + str(result["status"][0]) + ": " + str(result["status"][1])
+			return
+
 def find_dossier_by_DDI():
 	print "Currently not implemented."
 
 	print "---------------------------------"
-	print "Get Dossier List"
+	print "Get Dossier List By DDI"
 	print "---------------------------------"
 	print
 
@@ -110,11 +184,7 @@ def find_dossier_by_DDI():
 		else:
 			print "Invalid DDI Input."
 
-	limit = 5
-	offset = 0
-
-	while True:
-		pass
+	list_handler(ddi=ddi)
 
 
 def find_dossier_by_DDI_HOST():
